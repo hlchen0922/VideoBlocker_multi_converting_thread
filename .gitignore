@@ -1,0 +1,8 @@
+.vscode
+Server/__pycache__
+Server/modules/audioFile/__pycache__
+Server/modules/crawler/__pycache__
+Server/modules/database/__pycache__
+Extension/node_modules
+Server/venv
+Server/modules/audioFile/sr/

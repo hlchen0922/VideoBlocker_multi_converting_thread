@@ -1,0 +1,36 @@
+{
+  "name": "Online_Video_Blocker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "",
+  "main": "src/ext_background.js",
+  "scripts": {
+    "start": "webpack --config src/webpack.config.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-loader": "^8.0.6",
+    "bootstrap": "^4.3.1",
+    "css-loader": "^3.1.0",
+    "file-loader": "^4.1.0",
+    "html-loader": "^0.5.5",
+    "html-webpack-exclude-assets-plugin": "0.0.7",
+    "html-webpack-plugin": "^3.2.0",
+    "jquery": "^3.4.1",
+    "popper.js": "^1.15.0",
+    "style-loader": "^0.23.1",
+    "webpack": "^4.35.3",
+    "webpack-cli": "^3.3.6"
+  },
+  "dependencies": {
+    "@babel/core": "^7.5.4",
+    "child_process": "^1.0.2",
+    "express": "^4.17.1",
+    "require": "^2.4.20",
+    "sqlite3": "^4.0.9",
+    "uglify-js": "^3.6.0",
+    "webpack-merge": "^4.2.1"
+  }
+}
