@@ -5,6 +5,9 @@ import threading
 import time
 from queue import Queue
 
+from timeit import default_timer as timer
+from datetime import timedelta
+
 import modules.database.sqlite_database as SQLITEDB
 import modules.crawler.crawlermanager as CRAWLER
 import modules.audioFile.audiohandler as AUDIO
@@ -75,15 +78,18 @@ def check_if_url_legal():
         if crawler != None:
             try:
                 # downlaod video to local disk
+                start = timer()
                 crawler.collect_video_tags()
                 crawler.download_video()
+                end = timer()
+                print("Time elapse for downloading: " + str(timedelta(seconds=end-start)))
                 
                 # converting mp3 to wav file
-                filename = crawler.get_filename()
-                audioMG.convert_to_wav(filename)
+                filename = crawler.get_filename()              
 
                 # new threads to handle SR transcribing and checking all captured words at the same time.
-                transcribe_thread = threading.Thread(target=audioMG.trans_audio_file, args=(filename, q_audio_words, q_stop_flag))
+                start = timer()
+                transcribe_thread = threading.Thread(target=audioMG.trans_audio_file_batch, args=(filename, q_audio_words, q_stop_flag))
                 check_word_thread = threading.Thread(target=catcher.catch_word, args=(q_audio_words, q_stop_flag, q_caught_word))
                 # start thread
                 transcribe_thread.start()
@@ -91,7 +97,9 @@ def check_if_url_legal():
                 # close thread
                 transcribe_thread.join()
                 check_word_thread.join()
-               
+                end = timer()
+                print("Time elapse for transcribing: " + str(timedelta(seconds=end-start)))
+                
                 # set url information if there are words got captured                
                 if not q_caught_word.empty():                    
                     data["Blocked"] = True

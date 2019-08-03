@@ -16,13 +16,11 @@ class WordCatcher:
         self.word_set.add(new_word)
 
     
-    def catch_word(self, q_audio_elements, q_stop_flag, q_caught_word):
-        stop = False
-        while not stop:
+    def catch_word(self, q_audio_elements, q_stop_flag, q_caught_word):        
+        while q_stop_flag.empty():
             if not q_audio_elements.empty():
                 element = q_audio_elements.get()
-                text = element["line"]
-                stop = element["done"]                
+                text = element["line"]                              
                 for word in self.word_set:  
                     if word in text.split(" "):
                         q_stop_flag.put(True)

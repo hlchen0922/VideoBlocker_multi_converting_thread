@@ -15,12 +15,12 @@ class YTCrawler(CWeb.WebCrawler):
             'format': 'worstaudio/worst',
             'outtmpl': 'modules/tmp_data/{0!s}.%(ext)s'.format(self.output_file_name),
             'restrictfilenames': True,
-            'noplaylist': True,
+            'noplaylist': True,           
             'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
-            }]
+               'key': 'FFmpegExtractAudio',
+               'preferredcodec': 'wav',
+               'preferredquality': '192',
+            }]            
         }
         self.video_urls = []
 
