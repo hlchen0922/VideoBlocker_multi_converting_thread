@@ -16,9 +16,8 @@ import modules.wordCatcher.wordcatcher as WORDCATCHER
 app = Flask(__name__)
 
 crawlerMG = CRAWLER.CrawlerManager()
-audioMG = AUDIO.AudioHandler()
-db = SQLITEDB.DBConnection()
 catcher = WORDCATCHER.WordCatcher()
+db = SQLITEDB.DBConnection()
 
 ##################################################################
 # check the connection between chrome extension and local server #
@@ -63,13 +62,15 @@ def check_if_url_legal():
         domain = str(req_data["domain"])
         # one crawler for each page
         crawler = None      
-        crawler = crawlerMG.pop_crawlers(url)
+        crawler = crawlerMG.get_crawler(url)
         data = {
             "URL": url,
             "Domain": domain,
-            "Blocked": False,
+            "Blocked": "False",
             "CaughtWord": ""
         }
+
+        audioMG = AUDIO.AudioHandler()        
 
         q_audio_words = Queue()
         q_stop_flag = Queue()
@@ -85,7 +86,7 @@ def check_if_url_legal():
                 print("Time elapse for downloading: " + str(timedelta(seconds=end-start)))
                 
                 # converting mp3 to wav file
-                filename = crawler.get_filename()              
+                filename = crawler.get_filename()         
 
                 # new threads to handle SR transcribing and checking all captured words at the same time.
                 start = timer()
@@ -99,20 +100,25 @@ def check_if_url_legal():
                 check_word_thread.join()
                 end = timer()
                 print("Time elapse for transcribing: " + str(timedelta(seconds=end-start)))
-                
+
                 # set url information if there are words got captured                
                 if not q_caught_word.empty():                    
-                    data["Blocked"] = True
+                    data["Blocked"] = "True"
                     data["CaughtWord"] = q_caught_word.get()
                     print(colored(data["CaughtWord"], "red"))
                     
                 # insert current information into database
                 print("Insert into database")        
                 db.insert_url_details(data)
+
+                #remove crawler
+                crawlerMG.del_crawler(url)
             except Exception as e:
-                print(e)    
-        return jsonify(data)
-    return jsonify({})
+                print(e)
+            finally:   
+                return jsonify(data)
+        else:    
+            return jsonify({"Blocked": "Wait"})
 
 
 #########################################
@@ -147,7 +153,7 @@ def reset_tables():
 def pop_crawler():
     req_data = request.get_json()
     url = str(req_data["url"])    
-    print(crawlerMG.pop_crawlers(url))
+    print(crawlerMG.del_crawler(url))
     return ""
     
     

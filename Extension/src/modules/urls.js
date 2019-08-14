@@ -43,8 +43,9 @@ export async function checkURLOnServer(details){
                 body: JSON.stringify({url: url, domain: domain})
             });
             jsonDetails = await pDetails.json();
-            if(jsonDetails.Blocked){            
-                chrome.tabs.update(details.tabId, {url: "http://" + jsonDetails.Domain});            
+            if(jsonDetails.Blocked == "True"){           
+                chrome.tabs.update(details.tabId, {url: "http://" + jsonDetails.Domain});
+                alert("The video is blocked due to improper content found in dialog.");           
             }
         }else{
             //url not found in local server either, trigger speech recognition               
@@ -56,8 +57,13 @@ export async function checkURLOnServer(details){
             if(pDetails.ok){
                 jsonDetails = await pDetails.json();
                 //redirect current page to youtube.com if the video is improper
-                if(jsonDetails.Blocked){            
-                    chrome.tabs.update(details.tabId, {url: "http://" + jsonDetails.Domain});            
+                if(jsonDetails.Blocked == "True"){            
+                    chrome.tabs.update(details.tabId, {url: "http://" + jsonDetails.Domain});
+                    alert("The video is blocked due to improper content found in dialog.");          
+                }else if(jsonDetails.Blocked == "False"){
+                    reloadTab(url);
+                }else{
+                    //This video is in process
                 }
             }
         }   
@@ -68,5 +74,11 @@ export async function checkURLOnServer(details){
 export function resetServerTable(){
     fetch(serverURL + "/reset").then(function(res){
         console.log(res.text());
+    })
+}
+
+function reloadTab(url){
+    chrome.tabs.query({active: true, currentWindow: true, url: url}, function(tabs){
+        chrome.tabs.reload(tabs[0].id);
     })
 }

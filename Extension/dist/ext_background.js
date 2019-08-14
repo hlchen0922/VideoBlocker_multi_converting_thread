@@ -100,13 +100,21 @@ __webpack_require__.r(__webpack_exports__);
 
 Object(_modules_urls__WEBPACK_IMPORTED_MODULE_0__["checkConnection"])();
 
-//register event for before web requests
-chrome.webRequest.onBeforeRequest.addListener((details) => {                
-        Object(_modules_urls__WEBPACK_IMPORTED_MODULE_0__["checkURLOnServer"])(details);
-        console.log("BeforeRequest");
+//register event for before web request 
+chrome.webRequest.onBeforeRequest.addListener((details) => {        
+        Object(_modules_urls__WEBPACK_IMPORTED_MODULE_0__["checkURLOnServer"])(details);     
         return;
     },
     {urls:["*://www.youtube.com/watch?v=*", "*://youtube.com/watch?v=*"]}
+);
+
+//register event for blocking vedio components
+chrome.webRequest.onCompleted.addListener((details) => {
+    let tabId = details.tabId;    
+    chrome.tabs.sendMessage(tabId, {blockingTheater: 15});
+    console.log("Send Blocking Message to Server.");    
+    },
+    {urls:["*://www.youtube.com/watch?v=*", "*://youtube.com/watch?v=*"]}    
 );
 
 //register event for users click extension icon
@@ -121,7 +129,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         Object(_modules_urls__WEBPACK_IMPORTED_MODULE_0__["checkConnection"])();
         Object(_modules_urls__WEBPACK_IMPORTED_MODULE_0__["resetServerTable"])();
     }
-})
+});
 
 ////////////////////////////////////////
 // chrome storage configure functions //
@@ -195,8 +203,9 @@ async function checkURLOnServer(details){
                 body: JSON.stringify({url: url, domain: domain})
             });
             jsonDetails = await pDetails.json();
-            if(jsonDetails.Blocked){            
-                chrome.tabs.update(details.tabId, {url: "http://" + jsonDetails.Domain});            
+            if(jsonDetails.Blocked == "True"){           
+                chrome.tabs.update(details.tabId, {url: "http://" + jsonDetails.Domain});
+                alert("The video is blocked due to improper content found in dialog.");           
             }
         }else{
             //url not found in local server either, trigger speech recognition               
@@ -208,8 +217,13 @@ async function checkURLOnServer(details){
             if(pDetails.ok){
                 jsonDetails = await pDetails.json();
                 //redirect current page to youtube.com if the video is improper
-                if(jsonDetails.Blocked){            
-                    chrome.tabs.update(details.tabId, {url: "http://" + jsonDetails.Domain});            
+                if(jsonDetails.Blocked == "True"){            
+                    chrome.tabs.update(details.tabId, {url: "http://" + jsonDetails.Domain});
+                    alert("The video is blocked due to improper content found in dialog.");          
+                }else if(jsonDetails.Blocked == "False"){
+                    reloadTab(url);
+                }else{
+                    //This video is in process
                 }
             }
         }   
@@ -220,6 +234,12 @@ async function checkURLOnServer(details){
 function resetServerTable(){
     fetch(serverURL + "/reset").then(function(res){
         console.log(res.text());
+    })
+}
+
+function reloadTab(url){
+    chrome.tabs.query({active: true, currentWindow: true, url: url}, function(tabs){
+        chrome.tabs.reload(tabs[0].id);
     })
 }
 

@@ -7,6 +7,7 @@ module.exports = {
     mode: "development",
     entry: { 
         ext_background: "./src/ext_background.js",
+        ext_content: "./src/ext_content.js",
         popup: "./src/popup.js"
     },
     output: {

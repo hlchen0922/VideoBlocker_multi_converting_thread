@@ -2,12 +2,21 @@ import {checkConnection, checkURLOnServer, resetServerTable} from "./modules/url
 
 checkConnection();
 
-//register event for before web requests
-chrome.webRequest.onBeforeRequest.addListener((details) => {                
+//register event for before web request 
+chrome.webRequest.onBeforeRequest.addListener((details) => {        
         checkURLOnServer(details);     
         return;
     },
     {urls:["*://www.youtube.com/watch?v=*", "*://youtube.com/watch?v=*"]}
+);
+
+//register event for blocking vedio components
+chrome.webRequest.onCompleted.addListener((details) => {
+    let tabId = details.tabId;    
+    chrome.tabs.sendMessage(tabId, {blockingTheater: 15});
+    console.log("Send Blocking Message to Server.");    
+    },
+    {urls:["*://www.youtube.com/watch?v=*", "*://youtube.com/watch?v=*"]}    
 );
 
 //register event for users click extension icon
@@ -22,7 +31,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         checkConnection();
         resetServerTable();
     }
-})
+});
 
 ////////////////////////////////////////
 // chrome storage configure functions //

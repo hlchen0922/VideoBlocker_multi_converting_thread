@@ -1,13 +1,25 @@
 {
-    "name": "Online Video Blocker",
+    "name": "Online Video Blocker Multiple Thread",
     "version": "1.0",
     "background": {
         "scripts" : ["ext_background.js"],
         "persistent": true
-    },
+    },    
     "browser_action":{        
         "default_title": "Configure Your Video Blocker"
-    },    
+    },
+
+    "content_scripts": [
+        {
+          "matches": ["http://www.youtube.com/*", "https://www.youtube.com/*"],
+          "all_frames": true,        
+          "js": ["ext_content.js"]
+        }
+    ],
+
+    "web_accessible_resources": [
+        "wait.jpg"
+    ],    
     "permissions": [
         "tabs",
         "activeTab",
