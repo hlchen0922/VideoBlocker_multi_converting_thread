@@ -1,45 +1,20 @@
-let containerClone = null;
-let blockingPeriod_s = 10;
+"use strict"
 
 let emptyContainer = null;
-createEmptyContainer();
-
-chrome.runtime.onMessage.addListener((message, sender, response) => {
-    skipAds();
-    if("blockingTheater" in message){        
-        blockingPeriod_s = message.blockingTheater;
-        console.log("Blocking video for " + blockingPeriod_s + " seconds.");
-        blockingVideoContainer();
-    }
-});
+let videoPlayer = null;
+let videoPlayerParent = null;
 
 function blockingVideoContainer(){
-    let player = document.getElementById("ytd-player");
-    let video = document.getElementsByTagName("video")[0];
-
-    if(video){
-        console.log("Pause video");
-        video.pause();
+    console.log("Blocking videos");
+    videoPlayer = document.getElementsByClassName("html5-video-player")[0];
+    if(videoPlayer != undefined){
+        console.log("Hide video player");
+        videoPlayerParent = videoPlayer.parentElement;
+        videoPlayer.hidden = true;
+        videoPlayerParent.appendChild(emptyContainer);
+    }else{
+        console.log("Cannot get player element");
     }
-
-    for(let i = 0; i < player.children.length; i++){        
-        if(player.children[i].id == "container"){
-            console.log("Catch container!");
-            containerClone = player.children[i].cloneNode(true);                    
-            player.replaceChild(emptyContainer, player.children[i]);            
-            break;
-        }          
-    }
-}
-
-function restoreVideoContainer(){
-    console.log("Restore container");
-    let player = document.getElementById("ytd-player");
-    for(let i = 0; i < player.children.length; i++){
-        if(player.children[i].id == "chrome-extension-waiting"){
-            player.replaceChild(containerClone, player.children[i]);
-        }
-    }    
 }
 
 function createEmptyContainer(){
@@ -50,22 +25,38 @@ function createEmptyContainer(){
     emptyContainer.id = "chrome-extension-waiting";
 
     emptyContainer.style.display = "block";
-    emptyContainer.style.width = "50%";
+    emptyContainer.style.width = "80%";
     emptyContainer.style.margin = "auto";
 }
 
-//skip ads at first place
-function skipAds(){
-    let layer = 0;   
-    let ad = document.getElementsByClassName("ytp-ad-player-overlay")[layer];  
-    console.log(ad);
-    while(ad != undefined){        
-        let skip = document.getElementsByClassName("ytp-ad-skip-button")[0];
-        if(skip != undefined){
-            console.log("Skip Ad");
-            skip.click();
-        }
-        layer++;
-        ad = document.getElementsByClassName("ytp-ad-player-overlay")[layer];
-    }
+function restoreVideo(){
+    console.log("Resume video.");
+    videoPlayerParent.removeChild(emptyContainer);
+    videoPlayer.hidden = false;
 }
+
+function pauseVideo(){
+    let btnPause = document.getElementsByClassName("ytp-play-button")[0];    
+    if(btnPause != undefined){        
+        let pauseState = btnPause.getAttribute("aria-label");        
+        if(pauseState.includes("Pause")){
+            console.log("Pause video");
+            btnPause.click();                     
+        }else{
+            console.log("Video paused already.");
+        }
+    }else{
+        console.log("Cannot get pause button.");
+    }  
+}
+
+createEmptyContainer();
+
+chrome.runtime.onMessage.addListener((message, sender, response) => {    
+    if("resumeVideo" in message){        
+        restoreVideo();
+    }else if("blockVideo" in message){
+        setTimeout(pauseVideo, 1000);
+        setTimeout(blockingVideoContainer, 1000);
+    }
+});

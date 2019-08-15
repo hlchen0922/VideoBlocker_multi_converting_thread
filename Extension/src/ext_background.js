@@ -1,22 +1,12 @@
-import {checkConnection, checkURLOnServer, resetServerTable} from "./modules/urls"
+import {checkConnection, resetServerTable, checkURLOnServer} from "./modules/urls"
 
 checkConnection();
 
-//register event for before web request 
-chrome.webRequest.onBeforeRequest.addListener((details) => {        
-        checkURLOnServer(details);     
-        return;
-    },
+//register onCompleted event so that content script can be triggered after page is ready
+chrome.webRequest.onCompleted.addListener((details) => {    
+    checkURLOnServer(details);
+},
     {urls:["*://www.youtube.com/watch?v=*", "*://youtube.com/watch?v=*"]}
-);
-
-//register event for blocking vedio components
-chrome.webRequest.onCompleted.addListener((details) => {
-    let tabId = details.tabId;    
-    chrome.tabs.sendMessage(tabId, {blockingTheater: 15});
-    console.log("Send Blocking Message to Server.");    
-    },
-    {urls:["*://www.youtube.com/watch?v=*", "*://youtube.com/watch?v=*"]}    
 );
 
 //register event for users click extension icon
@@ -36,7 +26,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 ////////////////////////////////////////
 // chrome storage configure functions //
 ////////////////////////////////////////
-
 function setForbiddenWords(wordList){
     chrome.storage.sync.remove("word_list");    
     chrome.storage.sync.set({word_list: wordList});
