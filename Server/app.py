@@ -125,7 +125,7 @@ def check_if_url_legal():
 # get existed url details from database #
 #########################################
 @app.route("/urlDetails", methods=["POST"])
-def get_url_details():
+def check_url_details():
     if not request.method == "OPTIONS":
         req_data = request.get_json()
         url = req_data["url"]

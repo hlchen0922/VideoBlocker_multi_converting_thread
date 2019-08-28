@@ -31,8 +31,6 @@
         "storage",
         "unlimitedStorage",
         "<all_urls>",
-        "clipboardRead",
-        "downloads",
         "webRequest",
         "webRequestBlocking"
       ],    

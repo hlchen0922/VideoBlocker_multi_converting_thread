@@ -13,8 +13,9 @@ class CrawlerManager:
             parsed_uri = urlparse(url)
             domain = parsed_uri.netloc             
             if "youtube" in domain:
-                crawler = youtube.YTCrawler(url)
-                self.crawlers[url] = crawler
+                if (not url in self.workingURL) and (not url in self.crawlers.keys()):
+                    crawler = youtube.YTCrawler(url)
+                    self.crawlers[url] = crawler
             else:
                 pass
      

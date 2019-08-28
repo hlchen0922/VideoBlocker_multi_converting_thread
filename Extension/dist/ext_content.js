@@ -99,6 +99,8 @@
 let emptyContainer = null;
 let videoPlayer = null;
 let videoPlayerParent = null;
+let portBlockVideo = null;
+let portBolckBtn = null;
 
 function blockingVideoContainer(){
     console.log("Blocking videos");
@@ -110,6 +112,7 @@ function blockingVideoContainer(){
         videoPlayerParent.appendChild(emptyContainer);
     }else{
         console.log("Cannot get player element");
+        setTimeout(blockingVideoContainer, 250);
     }
 }
 
@@ -138,11 +141,14 @@ function pauseVideo(){
         if(pauseState.includes("Pause")){
             console.log("Pause video");
             btnPause.click();                     
-        }else{
+        }else if(pauseState.includes("Play")){
             console.log("Video paused already.");
+        }else{
+            setTimeout(pauseVideo, 500);
         }
     }else{
         console.log("Cannot get pause button.");
+        setTimeout(pauseVideo, 500);
     }  
 }
 
@@ -152,8 +158,8 @@ chrome.runtime.onMessage.addListener((message, sender, response) => {
     if("resumeVideo" in message){        
         restoreVideo();
     }else if("blockVideo" in message){
-        setTimeout(pauseVideo, 1000);
-        setTimeout(blockingVideoContainer, 1000);
+        pauseVideo();
+        blockingVideoContainer();
     }
 });
 
