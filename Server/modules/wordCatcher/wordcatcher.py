@@ -25,6 +25,7 @@ class WordCatcher:
                     if word in text.split(" "):
                         q_stop_flag.put(True)
                         q_caught_word.put(word)
+                        print(text)
                         return                
             time.sleep(0.1)            
         return    

@@ -212,8 +212,8 @@ async function checkURLOnServer(details){
                     alert("The video is blocked due to improper content found in dialog.");          
                 }else if(jsonDetails.Blocked == "False"){
                     console.log("Video OK!");
-                    chrome.tabs.query({currentWindow:true, active: true}, function(tabs){                        
-                        let currentURL = tabs[0].url;
+                    chrome.tabs.get(tabId, function(tab){                        
+                        let currentURL = tab.url;
                         currentURL = currentURL.split("&")[0];
                         if(currentURL == url){
                             console.log("resume video");

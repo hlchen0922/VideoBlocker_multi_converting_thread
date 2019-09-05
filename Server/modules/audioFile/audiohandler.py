@@ -76,10 +76,10 @@ class AudioHandler:
                     text = sr_session.recognize_google(audio)
                     element = {"line": text}
                     q_audio_element.put(element)
-                    print("%d : %s" %(i, text))                    
+                    print("%d : %s" %(i, text))
+                    #print("%d" %(i))                    
                 except sr.UnknownValueError:
-                    element = {"line": ""}
-        self._delete_file(dest_path)
+                    element = {"line": ""}            
 
 
     def trans_audio_file_batch(self, file_name, q_audio_element, q_stop_flag):  
@@ -96,7 +96,9 @@ class AudioHandler:
             thread.start()
 
         for i in range(len(self._transcribing_threads)):
+            dest_path = os.path.join(self._dest_file_path, self._file_names[i] + "." + self._dest_format)
             self._transcribing_threads[i].join()
+            self._delete_file(dest_path)
 
         print("Transcription Done!")
         q_stop_flag.put(True)

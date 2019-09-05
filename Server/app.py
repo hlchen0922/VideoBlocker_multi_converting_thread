@@ -70,7 +70,7 @@ def check_if_url_legal():
             "CaughtWord": ""
         }
 
-        audioMG = AUDIO.AudioHandler()        
+        audioMG = AUDIO.AudioHandler(8)        
 
         q_audio_words = Queue()
         q_stop_flag = Queue()
