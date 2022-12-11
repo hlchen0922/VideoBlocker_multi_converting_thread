@@ -27,7 +27,7 @@
   "dependencies": {
     "@babel/core": "^7.5.4",
     "child_process": "^1.0.2",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "require": "^2.4.20",
     "sqlite3": "^4.0.9",
     "uglify-js": "^3.6.0",
